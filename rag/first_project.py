@@ -1,3 +1,5 @@
+from lib.common.function import FunctionToJSONByPydantic
+from lib.common.function import Function
 from lib.Services.LLMService import LLMService
 from lib.common.logger import Logger
 from lib.wrappers.AsyncWrapper import AsyncWrapper
@@ -82,7 +84,14 @@ class App:
         )
 
     def query_embeddings(self, question: str, n_results: int = 3):
-        """Embed user question and get results from ChromaDB"""
+        """
+        Embed user question and get results from ChromaDB and send chunks to LLM model to generate answer for user question
+        Args:
+            question (str): User question
+            n_results (int): Number of results to return from ChromaDB
+        Returns:
+            Response: Response object containing the answer
+        """
 
         embedding_res = self.wrapper.retry(
             self.embeddingService.embed_query,
@@ -147,6 +156,7 @@ class App:
             print("\nOptions:")
             print("1. Ask a question")
             print("2. Re-run PDF embeddings")
+            print("3. Function to JSON")
             print("0. Exit")
             choice = input("Enter your choice: ").strip()
 
@@ -157,6 +167,10 @@ class App:
             elif choice == "2":
                 print("Re-running embeddings...")
                 self.run_embeddings()
+            elif choice == "3":
+                print("Function to JSON...")
+                descripefunc = Function.describe_function(self.query_embeddings)
+                print(json.dumps(descripefunc, indent=4))
             elif choice == "0":
                 print("Exiting...")
                 break
